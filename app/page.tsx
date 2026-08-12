@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
-const widgetUrl = "https://tpembd.com/content?currency=rub&trs=561562&shmarker=763716&show_hotels=true&powered_by=true&locale=ru&searchUrl=www.aviasales.ru%2Fsearch&primary_override=%2332a8dd&color_button=%2332a8dd&color_icons=%2332a8dd&dark=%23262626&light=%23FFFFFF&secondary=%23FFFFFF&special=%23C4C4C4&color_focused=%2332a8dd&border_radius=0&plain=false&promo_id=7879&campaign_id=100";
+import { FormEvent, useState } from "react";
 
 const offers = [
   { city: "Стамбул", country: "Турция", code: "IST", price: "найти билеты", color: "sunset" },
@@ -11,19 +9,17 @@ const offers = [
 ];
 
 export default function Home() {
-  const widget = useRef<HTMLDivElement>(null);
+  const [from, setFrom] = useState("Душанбе");
+  const [to, setTo] = useState("Уфа");
+  const [departure, setDeparture] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [passengers, setPassengers] = useState("1");
 
-  useEffect(() => {
-    const host = widget.current;
-    if (!host) return;
-    host.replaceChildren();
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = widgetUrl;
-    script.charset = "utf-8";
-    host.appendChild(script);
-    return () => host.replaceChildren();
-  }, []);
+  function sendRequest(event: FormEvent) {
+    event.preventDefault();
+    const message = `Здравствуйте! Хочу заказать авиабилет.\nМаршрут: ${from} → ${to}\nДата вылета: ${departure || "уточнить"}\nОбратно: ${returnDate || "не нужно"}\nПассажиры: ${passengers}`;
+    window.open(`https://wa.me/992935551997?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <main>
@@ -37,13 +33,21 @@ export default function Home() {
         <div className="hero-content wrap">
           <div className="eyebrow">ПОИСК РЕАЛЬНЫХ АВИАБИЛЕТОВ</div>
           <h1>Летите туда,<br />где вас <em>ждут</em></h1>
-          <p className="hero-copy">Сравните предложения авиакомпаний и агентств. После выбора рейса покупка билета продолжится на сайте партнёра.</p>
+          <p className="hero-copy">Выберите направление и даты. Заявка сразу поступит нашему менеджеру в WhatsApp.</p>
 
-          <section className="partner-search" id="search" aria-label="Поиск авиабилетов">
-            <div className="partner-search-title"><b>Найдите дешёвые авиабилеты</b><span>Форма поиска Aviasales</span></div>
-            <div className="aviasales-widget" ref={widget}><span className="widget-loading">Загружаем поиск рейсов…</span></div>
-          </section>
-          <div className="trust"><span>✓ Реальные предложения</span><span>◷ Поиск 24/7</span><span>◇ Безопасный переход к покупке</span></div>
+          <form className="partner-search request-form" id="search" aria-label="Заявка на авиабилет" onSubmit={sendRequest}>
+            <div className="partner-search-title"><b>Оставьте заявку на авиабилет</b><span>Ответим в WhatsApp</span></div>
+            <div className="request-fields">
+              <label><span>ОТКУДА</span><input value={from} onChange={e => setFrom(e.target.value)} required /></label>
+              <label><span>КУДА</span><input value={to} onChange={e => setTo(e.target.value)} required /></label>
+              <label><span>ТУДА</span><input type="date" value={departure} onChange={e => setDeparture(e.target.value)} required /></label>
+              <label><span>ОБРАТНО</span><input type="date" value={returnDate} onChange={e => setReturnDate(e.target.value)} /></label>
+              <label><span>ПАССАЖИРЫ</span><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="1">1 пассажир</option><option value="2">2 пассажира</option><option value="3">3 пассажира</option><option value="4">4 пассажира</option></select></label>
+              <button type="submit">Отправить в WhatsApp ↗</button>
+            </div>
+            <div className="messenger-choice"><span>Или напишите нам:</span><a href="https://wa.me/992935551997" target="_blank" rel="noreferrer">WhatsApp</a><a href="tg://resolve?phone=992935551997">Telegram</a></div>
+          </form>
+          <div className="trust"><span>✓ Заявка напрямую менеджеру</span><span>◷ Ответим быстро</span><span>◇ Поможем подобрать билет</span></div>
         </div>
       </section>
 
@@ -57,7 +61,7 @@ export default function Home() {
 
       <section className="benefits" id="benefits"><div className="wrap benefit-grid">
         <div><span className="kicker light">ПОЧЕМУ PARVOZ</span><h2>Просто найти.<br />Легко улететь.</h2></div>
-        <div className="benefit"><span>01</span><h3>Актуальный поиск</h3><p>Форма Aviasales ищет доступные предложения авиакомпаний и агентств.</p></div>
+        <div className="benefit"><span>01</span><h3>Персональный подбор</h3><p>Менеджер проверит доступные рейсы и предложит подходящие варианты.</p></div>
         <div className="benefit"><span>02</span><h3>Удобное сравнение</h3><p>Сравните время вылета, пересадки и стоимость перед переходом к покупке.</p></div>
         <div className="benefit"><span>03</span><h3>Мы рядом</h3><p>Если нужна помощь с поиском, напишите нам в WhatsApp или Telegram.</p></div>
       </div></section>
@@ -66,3 +70,4 @@ export default function Home() {
     </main>
   );
 }
+
